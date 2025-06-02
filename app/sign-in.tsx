@@ -3,6 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as SecureStore from 'expo-secure-store';
 import * as AuthSession from 'expo-auth-session';
 import { Button, Platform } from 'react-native';
+import {useSession} from "@/hooks/useSession";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -12,7 +13,9 @@ const discovery = {
     tokenEndpoint: process.env.EXPO_PUBLIC_AUTH_TOKEN_ENDPOINT!,
 };
 
-export default function Auth() {
+export default function SignIn() {
+    const { login } = useSession();
+
     const [request, response, promptAsync] = AuthSession.useAuthRequest(
         {
             clientId: process.env.EXPO_PUBLIC_AUTH_CLIENT_ID!,

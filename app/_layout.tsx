@@ -1,11 +1,16 @@
-import {Slot} from "expo-router";
-import {AuthProvider} from "@/components/AuthProvider";
-import {SafeAreaView} from "react-native-safe-area-context";
+import {Stack} from "expo-router";
+import {useSession} from "@/hooks/useSession";
 
 export default function RootLayout() {
-    return <SafeAreaView>
-        <AuthProvider>
-            <Slot/>
-        </AuthProvider>
-    </SafeAreaView>;
+    const { session } = useSession();
+
+    return <Stack>
+        <Stack.Protected guard={!!session}>
+            <Stack.Screen name="/" />
+        </Stack.Protected>
+
+        <Stack.Protected guard={!session}>
+            <Stack.Screen name="/sign-in" />
+        </Stack.Protected>
+    </Stack>
 }
