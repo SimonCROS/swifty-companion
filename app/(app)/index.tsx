@@ -1,25 +1,18 @@
 import {Button} from "react-native";
 import {useSession} from "@/hooks/useSession";
 import {useEffect} from "react";
+import {useApi} from "@/hooks/useApi";
 
 export default function Auth() {
-    const {session, signOut} = useSession();
+    const {signOut} = useSession();
+    const {apiFetch} = useApi();
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const response = await fetch('YOUR_API_URL', {
-                    headers: {
-                        'Authorization': `Bearer ${session!.accessToken}`
-                    }
-                });
-                const data = await response.json();
-                console.log(data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
+            console.log(await apiFetch("/v2/me"));
         };
-    }, [session]);
+        fetchData();
+    }, [apiFetch]);
 
     return (
         <Button title={"LogOut"} onPress={() => signOut()}></Button>
