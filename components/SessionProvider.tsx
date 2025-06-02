@@ -1,14 +1,23 @@
-import {useState, ReactNode, FC} from 'react';
 import {AuthContext} from "@/context/AuthContext";
+import {PropsWithChildren} from "react";
+import {useStorageState} from "@/hooks/useStorageState";
 
-export const SessionProvider: FC<{ children: ReactNode }> = ({children}) => {
-    const [token, setToken] = useState<string | null>(null);
-    const login = (token: string) => setToken(token);
-    const logout = () => setToken(null);
+export function SessionProvider({ children }: PropsWithChildren) {
+    const [[isLoading, session], setSession] = useStorageState('session');
 
     return (
-        <AuthContext.Provider value={{token, login, logout}}>
+        <AuthContext
+            value={{
+                signIn: () => {
+                    setSession('xxx');
+                },
+                signOut: () => {
+                    setSession(null);
+                },
+                session,
+                isLoading,
+            }}>
             {children}
-        </AuthContext.Provider>
+        </AuthContext>
     );
-};
+}

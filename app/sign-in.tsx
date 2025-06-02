@@ -14,7 +14,7 @@ const discovery = {
 };
 
 export default function SignIn() {
-    const { login } = useSession();
+    const { signIn } = useSession();
 
     const [request, response, promptAsync] = AuthSession.useAuthRequest(
         {
@@ -44,7 +44,7 @@ export default function SignIn() {
                         scheme: process.env.EXPO_PUBLIC_REDIRECT_URI_SCHEME
                     }),
                 },
-                discovery).then(e => console.log(e)).catch(e => console.log(e));
+                discovery).then(e => signIn(e.accessToken)).catch(e => console.log(e));
         }
     }, [response]);
 

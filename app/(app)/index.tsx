@@ -1,6 +1,10 @@
+import {Button} from "react-native";
+import {useSession} from "@/hooks/useSession";
 
 export default function Auth() {
+    const {signOut} = useSession();
+
     return (
-        <p>AAA</p>
+        <Button title={"LogOut"} onPress={() => signOut()}></Button>
     );
 }
