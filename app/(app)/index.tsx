@@ -9,7 +9,7 @@ export default function Auth() {
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log(await apiFetch("/v2/me"));
+            console.log((await apiFetch("/v2/users?range[login]=scros,scrot")).map(e => e.login));
         };
         fetchData();
     }, [apiFetch]);
