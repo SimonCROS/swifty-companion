@@ -2,6 +2,7 @@ import {Stack} from "expo-router";
 import {useSession} from "@/hooks/useSession";
 import {SessionProvider} from "@/components/SessionProvider";
 import {SplashScreenController} from "@/controllers/SplashScreenController";
+import "@/global.css";
 
 export default function Root() {
     return (
