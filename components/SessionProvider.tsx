@@ -8,13 +8,13 @@ export function SessionProvider({ children }: PropsWithChildren) {
     return (
         <AuthContext
             value={{
-                signIn: () => {
-                    setSession('xxx');
+                signIn: (value) => {
+                    setSession(JSON.stringify(value));
                 },
                 signOut: () => {
                     setSession(null);
                 },
-                session,
+                session: JSON.parse(session!), // JSON.parse(null) return null
                 isLoading,
             }}>
             {children}

@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import {useEffect} from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import * as SecureStore from 'expo-secure-store';
 import * as AuthSession from 'expo-auth-session';
-import { Button, Platform } from 'react-native';
+import {Button, Platform} from 'react-native';
 import {useSession} from "@/hooks/useSession";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -14,7 +14,7 @@ const discovery = {
 };
 
 export default function SignIn() {
-    const { signIn } = useSession();
+    const {signIn} = useSession();
 
     const [request, response, promptAsync] = AuthSession.useAuthRequest(
         {
@@ -36,17 +36,29 @@ export default function SignIn() {
                 SecureStore.setItemAsync(process.env.EXPO_PUBLIC_AUTH_STATE_KEY!, storageValue);
             }
 
-            AuthSession.exchangeCodeAsync({
-                    clientId: process.env.EXPO_PUBLIC_AUTH_CLIENT_ID!,
-                    clientSecret: process.env.EXPO_PUBLIC_AUTH_CLIENT_SECRET!,
-                    code: response.params.code,
-                    redirectUri: AuthSession.makeRedirectUri({
-                        scheme: process.env.EXPO_PUBLIC_REDIRECT_URI_SCHEME
-                    }),
-                },
-                discovery).then(e => signIn(e.accessToken)).catch(e => console.log(e));
+            (async () => {
+                const tokenResponse = await AuthSession.exchangeCodeAsync({
+                        clientId: process.env.EXPO_PUBLIC_AUTH_CLIENT_ID!,
+                        clientSecret: process.env.EXPO_PUBLIC_AUTH_CLIENT_SECRET!,
+                        code: response.params.code,
+                        redirectUri: AuthSession.makeRedirectUri({
+                            scheme: process.env.EXPO_PUBLIC_REDIRECT_URI_SCHEME
+                        }),
+                    },
+                    discovery);
+                signIn({
+                    accessToken: tokenResponse.accessToken,
+                    tokenType: tokenResponse.tokenType,
+                    expiresIn: tokenResponse.expiresIn,
+                    refreshToken: tokenResponse.refreshToken,
+                    scope: tokenResponse.scope,
+                    state: tokenResponse.state,
+                    idToken: tokenResponse.idToken,
+                    issuedAt: tokenResponse.issuedAt,
+                });
+            })();
         }
-    }, [response]);
+    }, [signIn, response]);
 
     return (
         <Button

@@ -1,3 +1,4 @@
+// from https://docs.expo.dev/router/advanced/authentication/
 import {useEffect, useCallback, useReducer} from 'react';
 import * as SecureStore from 'expo-secure-store';
 import {Platform} from 'react-native';
