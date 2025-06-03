@@ -3,27 +3,30 @@ import {useSession} from "@/hooks/useSession";
 import {SessionProvider} from "@/components/SessionProvider";
 import {SplashScreenController} from "@/controllers/SplashScreenController";
 import "@/global.css";
+import {SafeAreaProvider} from "react-native-safe-area-context";
 
 export default function Root() {
     return (
         <SessionProvider>
-            <SplashScreenController />
-            <RootNavigator />
+            <SafeAreaProvider>
+                <SplashScreenController/>
+                <RootNavigator/>
+            </SafeAreaProvider>
         </SessionProvider>
     );
 }
 
 function RootNavigator() {
-    const { session } = useSession();
+    const {session} = useSession();
 
     return (
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack screenOptions={{headerShown: false}}>
             <Stack.Protected guard={!!session}>
-                <Stack.Screen name="(app)" />
+                <Stack.Screen name="(app)"/>
             </Stack.Protected>
 
             <Stack.Protected guard={!session}>
-                <Stack.Screen name="sign-in" />
+                <Stack.Screen name="sign-in"/>
             </Stack.Protected>
         </Stack>
     );
