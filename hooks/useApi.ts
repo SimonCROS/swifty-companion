@@ -1,9 +1,11 @@
 import {useSession} from "@/hooks/useSession";
+import {refreshAsync} from "expo-auth-session";
+import {authDiscovery} from "@/api/auth";
 
 export const useApi = () => {
-    const {session} = useSession();
+    const {session, signIn} = useSession();
 
-    const apiFetch = async (path: string, options: RequestInit = {}): Promise<object | null> => {
+    const apiFetchInternal = async (path: string, options: RequestInit = {}, accessToken: string, retryCount: number): Promise<object | object[] | null> => {
         if (!session?.accessToken) {
             throw new Error('No auth token available');
         }
@@ -11,25 +13,32 @@ export const useApi = () => {
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_ENDPOINT}${path}`, {
             ...options,
             headers: {
-                ...(options.headers || {}),
-                'Authorization': `Bearer ${session.accessToken}`,
+                'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
+                ...(options.headers || {}),
             },
         });
 
         if (!response.ok) {
-            // TODO Refresh, with a max recursion limit
-            // if (response.status === 401 && refreshToken) {
-            //     await refreshToken();
-            //     const newAuthToken = getUpdatedTokenSomehow(); // depends on your state management
-            //     return fetch(url, {
-            //         ...options,
-            //         headers: {
-            //             ...(options.headers || {}),
-            //             Authorization: `Bearer ${newAuthToken}`,
-            //         },
-            //     });
-            // }
+            if (retryCount < 1 && response.status === 401 && session.refreshToken) {
+                const refreshTokenResponse = await refreshAsync({
+                    refreshToken: session.refreshToken,
+                    clientId: process.env.EXPO_PUBLIC_AUTH_CLIENT_ID!,
+                    clientSecret: process.env.EXPO_PUBLIC_AUTH_CLIENT_SECRET!,
+                }, authDiscovery);
+                signIn({
+                    accessToken: refreshTokenResponse.accessToken,
+                    tokenType: refreshTokenResponse.tokenType,
+                    expiresIn: refreshTokenResponse.expiresIn,
+                    refreshToken: refreshTokenResponse.refreshToken,
+                    scope: refreshTokenResponse.scope,
+                    state: refreshTokenResponse.state,
+                    idToken: refreshTokenResponse.idToken,
+                    issuedAt: refreshTokenResponse.issuedAt,
+                });
+
+                return await apiFetchInternal(path, options, refreshTokenResponse.accessToken, retryCount + 1);
+            }
 
             throw new Error(`API error: ${response.status}`);
         }
@@ -40,6 +49,13 @@ export const useApi = () => {
             throw new Error(`API response error: ${error}`);
         }
     };
+
+    const apiFetch = async (path: string, options: RequestInit = {}) => {
+        if (!session || !session.refreshToken) {
+            throw new Error('No auth token available');
+        }
+        return await apiFetchInternal(path, options, session.accessToken, 0);
+    }
 
     return {apiFetch};
 };

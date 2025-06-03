@@ -4,14 +4,9 @@ import * as SecureStore from 'expo-secure-store';
 import * as AuthSession from 'expo-auth-session';
 import {Button, Platform} from 'react-native';
 import {useSession} from "@/hooks/useSession";
+import {authDiscovery} from "@/api/auth";
 
 WebBrowser.maybeCompleteAuthSession();
-
-// Endpoint
-const discovery = {
-    authorizationEndpoint: process.env.EXPO_PUBLIC_AUTH_AUTHORIZATION_ENDPOINT!,
-    tokenEndpoint: process.env.EXPO_PUBLIC_AUTH_TOKEN_ENDPOINT!,
-};
 
 export default function SignIn() {
     const {signIn} = useSession();
@@ -24,7 +19,7 @@ export default function SignIn() {
                 scheme: 'swifty_companion'
             }),
         },
-        discovery
+        authDiscovery
     );
 
     useEffect(() => {
@@ -45,7 +40,7 @@ export default function SignIn() {
                             scheme: process.env.EXPO_PUBLIC_REDIRECT_URI_SCHEME
                         }),
                     },
-                    discovery);
+                    authDiscovery);
                 signIn({
                     accessToken: tokenResponse.accessToken,
                     tokenType: tokenResponse.tokenType,

@@ -6,50 +6,61 @@ import {Label} from '@/components/ui/label';
 import {Text} from '@/components/ui/text';
 import {cn} from '@/lib/utils';
 import {Button} from "@/components/ui/button";
+import {useApi} from "@/hooks/useApi";
+import {useUser} from "@/hooks/useUser";
+import {User} from "@/context/UserContext";
 
 export default function SearchScreen() {
-    const inputRef = React.useRef<TextInput>(null);
-    const [value, setValue] = React.useState<string>('');
+    const {apiFetch} = useApi();
+    const [input, setInput] = React.useState<string>('');
+    const [loading, setLoading] = React.useState<boolean>(false);
     const [err, setErr] = React.useState<string | null>(null);
+    const {setUser, unsetUser} = useUser();
 
-    function handleOnLabelPress() {
-        if (!inputRef.current) {
-            return;
+    const handleSubmit = async () => {
+        if (!input.trim()) return;
+
+        setLoading(true);
+        try {
+            const response = await apiFetch(`/v2/users?filter[login]=${input}`);
+            if (Array.isArray(response) && response.length > 0) {
+                setUser(response[0] as User);
+            } else {
+                setErr('login not found');
+                unsetUser();
+            }
+        } catch (error) {
+            setErr(`Fetch error: ${error}`);
+            unsetUser();
+        } finally {
+            setLoading(false);
         }
-        if (inputRef.current.isFocused()) {
-            inputRef.current?.blur();
-        } else {
-            inputRef.current?.focus();
-        }
-    }
+    };
 
     function onChangeText(text: string) {
         if (err) {
             setErr(null);
         }
-        setValue(text);
-    }
-
-    function onSubmitEditing() {
-        setErr('Write more stuff to remove this error message.');
+        setInput(text);
     }
 
     return (
         <ScrollView contentContainerClassName='flex-1 justify-center items-center p-6'>
             <View className='web:max-w-xs w-full'>
                 <Input
-                    ref={inputRef as React.RefObject<TextInput>}
                     placeholder='Enter a login'
-                    value={value}
+                    value={input}
                     onChangeText={onChangeText}
-                    onSubmitEditing={onSubmitEditing}
+                    onSubmitEditing={handleSubmit}
                     aria-labelledby='inputLabel'
                     aria-errormessage='inputError'
                     textAlign={'center'}
                 />
                 {err && <ErrorMessage msg={err}/>}
                 <View className='h-2'/>
-                <Button><Text>Search</Text></Button>
+                <Button onPress={handleSubmit} disabled={loading}>
+                    <Text>Search</Text>
+                </Button>
             </View>
         </ScrollView>
     );
