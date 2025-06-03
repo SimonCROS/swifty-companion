@@ -24,34 +24,7 @@ export default function SignIn() {
 
     useEffect(() => {
         if (response?.type === 'success') {
-            const auth = response.params;
-            const storageValue = JSON.stringify(auth);
-
-            if (Platform.OS !== 'web') {
-                SecureStore.setItemAsync(process.env.EXPO_PUBLIC_AUTH_STATE_KEY!, storageValue);
-            }
-
-            (async () => {
-                const tokenResponse = await AuthSession.exchangeCodeAsync({
-                        clientId: process.env.EXPO_PUBLIC_AUTH_CLIENT_ID!,
-                        clientSecret: process.env.EXPO_PUBLIC_AUTH_CLIENT_SECRET!,
-                        code: response.params.code,
-                        redirectUri: AuthSession.makeRedirectUri({
-                            scheme: process.env.EXPO_PUBLIC_REDIRECT_URI_SCHEME
-                        }),
-                    },
-                    authDiscovery);
-                signIn({
-                    accessToken: tokenResponse.accessToken,
-                    tokenType: tokenResponse.tokenType,
-                    expiresIn: tokenResponse.expiresIn,
-                    refreshToken: tokenResponse.refreshToken,
-                    scope: tokenResponse.scope,
-                    state: tokenResponse.state,
-                    idToken: tokenResponse.idToken,
-                    issuedAt: tokenResponse.issuedAt,
-                });
-            })();
+            signIn(response.params.code); // TODO async gestion
         }
     }, [signIn, response]);
 

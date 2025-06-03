@@ -1,7 +1,7 @@
 import {createContext} from "react";
 import {TokenType} from "expo-auth-session/src/TokenRequest.types";
 
-interface Session {
+export interface Session {
     accessToken: string;
     tokenType?: TokenType;
     expiresIn?: number;
@@ -13,13 +13,21 @@ interface Session {
 }
 
 export const AuthContext = createContext<{
-    signIn: (token: Session) => void;
+    signIn: (code: string) => Promise<string>;
+    refreshToken: () => Promise<string>;
     signOut: () => void;
     session?: Session | null;
     isLoading: boolean;
 }>({
-    signIn: () => null,
-    signOut: () => null,
+    signIn: async () => {
+        throw new Error('Uninitialized');
+    },
+    refreshToken: async () => {
+        throw new Error('Uninitialized');
+    },
+    signOut: () => {
+        throw new Error('Uninitialized');
+    },
     session: null,
     isLoading: false,
 });
