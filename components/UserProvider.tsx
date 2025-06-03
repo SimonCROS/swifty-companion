@@ -2,16 +2,16 @@ import {PropsWithChildren, useState} from "react";
 import {UserContext, User} from "@/context/UserContext";
 
 export function UserProvider({ children }: PropsWithChildren) {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUserState] = useState<User | null>(null);
 
     return (
         <UserContext
             value={{
                 setUser: (value) => {
-                    setUser(value);
+                    setUserState(value);
                 },
                 unsetUser: () => {
-                    setUser(null)
+                    setUserState(null)
                 },
                 user,
             }}>

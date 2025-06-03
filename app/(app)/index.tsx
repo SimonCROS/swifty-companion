@@ -1,7 +1,5 @@
 import {Redirect} from "expo-router";
 
-export default function Auth() {
-    return (
-        <Redirect href={'/search'}></Redirect>
-    );
+export default function Index() {
+    return (<Redirect href={'/search'}></Redirect>);
 }

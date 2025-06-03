@@ -2,13 +2,13 @@ import * as React from 'react';
 import {Platform, ScrollView, TextInput, View} from 'react-native';
 import Animated, {FadeInDown, FadeOut} from 'react-native-reanimated';
 import {Input} from '@/components/ui/input';
-import {Label} from '@/components/ui/label';
 import {Text} from '@/components/ui/text';
-import {cn} from '@/lib/utils';
 import {Button} from "@/components/ui/button";
 import {useApi} from "@/hooks/useApi";
 import {useUser} from "@/hooks/useUser";
 import {User} from "@/context/UserContext";
+import {router} from "expo-router";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 export default function SearchScreen() {
     const {apiFetch} = useApi();
@@ -24,7 +24,9 @@ export default function SearchScreen() {
         try {
             const response = await apiFetch(`/v2/users?filter[login]=${input}`);
             if (Array.isArray(response) && response.length > 0) {
-                setUser(response[0] as User);
+                const user = response[0] as User;
+                setUser(user);
+                router.push({pathname: '/profile/[login]', params: {login: user.login}});
             } else {
                 setErr('login not found');
                 unsetUser();
@@ -45,24 +47,26 @@ export default function SearchScreen() {
     }
 
     return (
-        <ScrollView contentContainerClassName='flex-1 justify-center items-center p-6'>
-            <View className='web:max-w-xs w-full'>
-                <Input
-                    placeholder='Enter a login'
-                    value={input}
-                    onChangeText={onChangeText}
-                    onSubmitEditing={handleSubmit}
-                    aria-labelledby='inputLabel'
-                    aria-errormessage='inputError'
-                    textAlign={'center'}
-                />
-                {err && <ErrorMessage msg={err}/>}
-                <View className='h-2'/>
-                <Button onPress={handleSubmit} disabled={loading}>
-                    <Text>Search</Text>
-                </Button>
-            </View>
-        </ScrollView>
+        <SafeAreaView>
+            <ScrollView contentContainerClassName='flex-1 justify-center items-center p-6'>
+                <View className='web:max-w-xs w-full'>
+                    <Input
+                        placeholder='Enter a login'
+                        value={input}
+                        onChangeText={onChangeText}
+                        onSubmitEditing={handleSubmit}
+                        aria-labelledby='inputLabel'
+                        aria-errormessage='inputError'
+                        textAlign={'center'}
+                    />
+                    {err && <ErrorMessage msg={err}/>}
+                    <View className='h-2'/>
+                    <Button onPress={handleSubmit} disabled={loading}>
+                        <Text>Search</Text>
+                    </Button>
+                </View>
+            </ScrollView>
+        </SafeAreaView>
     );
 }
 

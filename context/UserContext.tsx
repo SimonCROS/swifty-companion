@@ -17,7 +17,7 @@ export const UserContext = createContext<{
     unsetUser: () => void;
     user?: User | null;
 }>({
-    setUser: (user) => null,
+    setUser: () => null,
     unsetUser: () => null,
     user: null,
 });
