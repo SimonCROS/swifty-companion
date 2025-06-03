@@ -37,13 +37,6 @@ export default function SearchScreen() {
     return (
         <ScrollView contentContainerClassName='flex-1 justify-center items-center p-6'>
             <View className='web:max-w-xs w-full'>
-                <Label
-                    className={cn(err && 'text-destructive', 'pb-2 native:pb-1 pl-0.5')}
-                    nativeID='inputLabel'
-                    onPress={handleOnLabelPress}
-                >
-                    Label
-                </Label>
                 <Input
                     ref={inputRef as React.RefObject<TextInput>}
                     placeholder='Enter a login'
@@ -52,6 +45,7 @@ export default function SearchScreen() {
                     onSubmitEditing={onSubmitEditing}
                     aria-labelledby='inputLabel'
                     aria-errormessage='inputError'
+                    textAlign={'center'}
                 />
                 {err && <ErrorMessage msg={err}/>}
                 <View className='h-2'/>
