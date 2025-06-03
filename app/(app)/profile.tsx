@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, ScrollView, StyleSheet, FlatList} from 'react-native';
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Progress} from '@/components/ui/progress';
 import {Text} from '@/components/ui/text';
@@ -123,41 +123,50 @@ const profile = {
     ]
 };
 
-const listItems = [
-    {id: '1', title: 'Achievement: 100 Days Streak'},
-    {id: '2', title: 'Unlocked: Dark Mode Theme'},
-    {id: '3', title: 'Badge: Verified User'},
-    {id: '4', title: 'Logged in from new device'},
-    {id: '5', title: 'Level up: Rank 5'},
-];
-
 export default function ProfileScreen() {
+    const displayName = profile.usual_full_name ?? `${profile.first_name} ${profile.last_name}`;
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Card style={styles.profileCard}>
+            <Card>
                 <CardHeader style={styles.header}>
-                    <Avatar alt="Zach Nugent's Avatar">
+                    <Avatar alt="Zach Nugent's Avatar" style={{width: 84, height: 84}}>
                         <AvatarImage source={{uri: profile.image?.versions?.small ?? profile.image?.link}}/>
                         <AvatarFallback>
-                            <Text>{(profile.login?.substring(0, 2) ?? "$$").toUpperCase()}</Text>
+                            <Text>{(profile.login?.substring(0, 2) ?? '$$').toUpperCase()}</Text>
                         </AvatarFallback>
                     </Avatar>
-                    <View style={styles.info}>
+                    <View className={'flex-1'}>
                         <CardTitle>{profile.login}</CardTitle>
-                        <Text>{profile.usual_full_name ?? `${profile.first_name} ${profile.last_name}`}</Text>
-                        <Text>{profile.email}</Text>
+                        {displayName ?
+                            <Text>{displayName}</Text>
+                            :
+                            <Text className={'text-destructive'}>name unavailable</Text>
+                        }
+                        {profile.email ?
+                            <Text className={'text-muted-foreground'}>{profile.email}</Text>
+                            :
+                            <Text className={'text-destructive'}>email unavailable</Text>
+                        }
+                        {profile.phone ?
+                            <Text className={'text-muted-foreground'}>{profile.phone}</Text>
+                            :
+                            <Text className={'text-destructive'}>phone unavailable</Text>
+                        }
                     </View>
                 </CardHeader>
-                <CardContent>
-                    <View style={styles.progressContainer}>
-                        <Text style={styles.progressLabel}>Level {profile.cursus_users?.[0]?.level}</Text>
+                <CardFooter>
+                    <View className={'w-full'}>
+                        <Text className={'mb-3'}>Level {profile.cursus_users?.[0]?.level}</Text>
                         <Progress value={((profile.cursus_users?.[0]?.level ?? 0) % 1) * 100}/>
                     </View>
-                </CardContent>
+                </CardFooter>
             </Card>
 
-            <Card style={styles.listCard}>
-                <CardTitle style={{marginBottom: 8}}>Recent Activity</CardTitle>
+            <Card>
+                <CardHeader style={styles.header}>
+                    <CardTitle style={{marginBottom: 8}}>Recent Activity</CardTitle>
+                </CardHeader>
             </Card>
         </ScrollView>
     );
@@ -168,24 +177,9 @@ const styles = StyleSheet.create({
         padding: 16,
         gap: 16,
     },
-    profileCard: {
-        padding: 16,
-    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 16,
-    },
-    info: {
-        flex: 1,
-    },
-    progressContainer: {
-        marginTop: 16,
-    },
-    progressLabel: {
-        marginBottom: 8,
-    },
-    listCard: {
-        padding: 16,
     },
 });
