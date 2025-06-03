@@ -36,12 +36,12 @@ export default function ProfileScreen() {
                                 :
                                 <Text className={'text-destructive'}>name unavailable</Text>
                             }
-                            {user.email ?
+                            {(user.email && user.email !== 'hidden') ?
                                 <Text className={'text-muted-foreground'}>{user.email}</Text>
                                 :
                                 <Text className={'text-destructive'}>email unavailable</Text>
                             }
-                            {user.phone ?
+                            {(user.phone && user.phone !== 'hidden') ?
                                 <Text className={'text-muted-foreground'}>{user.phone}</Text>
                                 :
                                 <Text className={'text-destructive'}>phone unavailable</Text>

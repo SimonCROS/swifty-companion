@@ -1,9 +1,10 @@
-import {Stack} from "expo-router";
+import {Stack, Redirect, usePathname} from "expo-router";
 import {useSession} from "@/hooks/useSession";
 import {SessionProvider} from "@/components/SessionProvider";
 import {SplashScreenController} from "@/controllers/SplashScreenController";
+import {SafeAreaProvider, SafeAreaView} from "react-native-safe-area-context";
+import {View, ActivityIndicator} from 'react-native';
 import "@/global.css";
-import {SafeAreaProvider} from "react-native-safe-area-context";
 
 export default function Root() {
     return (
@@ -17,7 +18,15 @@ export default function Root() {
 }
 
 function RootNavigator() {
-    const {session} = useSession();
+    const {session, isLoading} = useSession();
+
+    if (isLoading) {
+        return (
+            <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" />
+            </SafeAreaView>
+        );
+    }
 
     return (
         <Stack screenOptions={{headerShown: false}}>

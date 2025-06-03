@@ -1,13 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
-import {Button, ScrollView, StyleSheet, View} from 'react-native';
+import {Button} from 'react-native';
 import {useSession} from "@/hooks/useSession";
 import {authDiscovery} from "@/api/auth";
-import {Card, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {Text} from "@/components/ui/text";
-import {Progress} from "@/components/ui/progress";
 import {SafeAreaView} from "react-native-safe-area-context";
 
 WebBrowser.maybeCompleteAuthSession();
