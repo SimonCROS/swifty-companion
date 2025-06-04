@@ -82,7 +82,7 @@ export function SessionProvider({children}: PropsWithChildren) {
                 getValidToken: async (): Promise<AuthResult> => {
                     if (!state.session) throw new Error("No session");
 
-                    if (state.session.shouldRefresh() || true) {
+                    if (state.session.shouldRefresh()) {
                         try {
                             const tokenResponse = await state.session.refreshAsync({
                                 clientId: process.env.EXPO_PUBLIC_AUTH_CLIENT_ID!,
