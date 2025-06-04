@@ -21,8 +21,8 @@ export default function ProfileScreen() {
     useEffect(() => {
         const fetchUser = async (login: string): Promise<number | null> => {
             const response = await apiFetch(`/v2/users/${encodeURIComponent(login)}`);
-            if (response != null) {
-                const user = response as User;
+            if (response.data) {
+                const user = response.data as User;
                 setUser(user);
                 return user.id;
             } else {
@@ -31,17 +31,11 @@ export default function ProfileScreen() {
         }
 
         (async () => {
-            try {
-                let userId: number | null = user.id ?? null;
-                if (!userId && login && typeof login === 'string')
-                    userId = await fetchUser(login);
+            let userId: number | null = user.id ?? null;
+            if (!userId && login && typeof login === 'string')
+                userId = await fetchUser(login);
 
-                if (!userId) {
-                    router.replace('/search');
-                    return;
-                }
-            } catch (error) {
-                console.error(`Failed to fetch user: ${error}`);
+            if (!userId) {
                 router.replace('/search');
                 return;
             }

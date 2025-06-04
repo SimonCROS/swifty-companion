@@ -22,22 +22,19 @@ export default function SearchScreen() {
         if (!input.trim()) return;
 
         setLoading(true);
-        try {
-            const response = await apiFetch(`/v2/users/${encodeURIComponent(input.trim())}`);
-            if (response != null) {
-                const user = response as User;
-                setUser(user);
-                router.push({pathname: '/profile/[login]', params: {login: user.login}});
-            } else {
+        const response = await apiFetch(`/v2/users/${encodeURIComponent(input.trim())}`);
+        setLoading(false);
+        if (response.data) {
+            const user = response.data as User;
+            setUser(user);
+            router.push({pathname: '/profile/[login]', params: {login: user.login}});
+        } else {
+            if (response.fetchStatus == 404)
                 setErr('login not found');
-                unsetUser();
-            }
-        } catch (error) {
-            console.dir(error);
-            setErr(`Fetch error: ${error}`);
+            else if (response.fetchError)
+                setErr(response.fetchError);
+            // auth error will sign out user
             unsetUser();
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -50,14 +47,14 @@ export default function SearchScreen() {
 
     return (
         <ScrollView contentContainerStyle={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        paddingTop: insets.top,
-                        paddingBottom: insets.bottom,
-                        paddingLeft: insets.left,
-                        paddingRight: insets.right,
-                    }}>
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+        }}>
             <View className='web:max-w-xs w-full p-6'>
                 <Input
                     placeholder='Enter a login'

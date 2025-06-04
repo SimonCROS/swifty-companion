@@ -1,9 +1,15 @@
 import {createContext} from "react";
 import {TokenResponse} from "expo-auth-session";
 
+export interface AuthResult {
+    accessToken?: string;
+    authError?: string;
+    fetchError?: string;
+}
+
 export const AuthContext = createContext<{
-    signIn: (code: string) => Promise<string>;
-    getValidToken: () => Promise<string>;
+    signIn: (code: string) => Promise<AuthResult>;
+    getValidToken: () => Promise<AuthResult>;
     signOut: () => void;
     session?: TokenResponse | null;
     isLoading: boolean;
