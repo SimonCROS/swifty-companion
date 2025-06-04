@@ -1,9 +1,10 @@
 import {useSession} from "@/hooks/useSession";
+import {useCallback} from "react";
 
 export const useApi = () => {
     const {getValidToken} = useSession();
 
-    const apiFetch = async (path: string, options: RequestInit = {}): Promise<object | object[] | null> => {
+    const apiFetch = useCallback(async (path: string, options: RequestInit = {}): Promise<object | object[] | null> => {
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_ENDPOINT}${path}`, {
             ...options,
             headers: {
@@ -22,7 +23,7 @@ export const useApi = () => {
         } catch (error) {
             throw new Error(`API response error: ${error}`);
         }
-    };
+    }, [getValidToken]);
 
     return {apiFetch};
 };

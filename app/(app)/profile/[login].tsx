@@ -6,9 +6,10 @@ import {Progress} from '@/components/ui/progress';
 import {Text} from '@/components/ui/text';
 import {useUser} from "@/hooks/useUser";
 import {useLocalSearchParams} from "expo-router";
-import {SafeAreaView} from "react-native-safe-area-context";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
+    const insets = useSafeAreaInsets();
     const {login} = useLocalSearchParams();
     const {user} = useUser();
 
@@ -19,8 +20,14 @@ export default function ProfileScreen() {
     const displayName = user.usual_full_name ?? `${user.first_name} ${user.last_name}`;
 
     return (
-        <SafeAreaView>
-            <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView contentContainerStyle={{
+            flex: 1,
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+        }}>
+            <View style={styles.container}>
                 <Card>
                     <CardHeader style={styles.header}>
                         <Avatar alt="Zach Nugent's Avatar" style={{width: 84, height: 84}}>
@@ -61,8 +68,8 @@ export default function ProfileScreen() {
                         <CardTitle style={{marginBottom: 8}}>Recent Activity</CardTitle>
                     </CardHeader>
                 </Card>
-            </ScrollView>
-        </SafeAreaView>
+            </View>
+        </ScrollView>
     );
 }
 

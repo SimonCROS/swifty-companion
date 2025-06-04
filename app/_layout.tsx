@@ -1,9 +1,9 @@
-import {Stack, Redirect, usePathname} from "expo-router";
+import {Stack} from "expo-router";
 import {useSession} from "@/hooks/useSession";
 import {SessionProvider} from "@/components/SessionProvider";
 import {SplashScreenController} from "@/controllers/SplashScreenController";
 import {SafeAreaProvider, SafeAreaView} from "react-native-safe-area-context";
-import {View, ActivityIndicator} from 'react-native';
+import {ActivityIndicator} from 'react-native';
 import "@/global.css";
 
 export default function Root() {

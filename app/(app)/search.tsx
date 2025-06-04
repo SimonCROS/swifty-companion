@@ -8,9 +8,10 @@ import {useApi} from "@/hooks/useApi";
 import {useUser} from "@/hooks/useUser";
 import {User} from "@/context/UserContext";
 import {router} from "expo-router";
-import {SafeAreaView} from "react-native-safe-area-context";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function SearchScreen() {
+    const insets = useSafeAreaInsets();
     const {apiFetch} = useApi();
     const [input, setInput] = React.useState<string>('');
     const [loading, setLoading] = React.useState<boolean>(false);
@@ -47,26 +48,33 @@ export default function SearchScreen() {
     }
 
     return (
-        <SafeAreaView>
-            <ScrollView contentContainerClassName='flex-1 justify-center items-center p-6'>
-                <View className='web:max-w-xs w-full'>
-                    <Input
-                        placeholder='Enter a login'
-                        value={input}
-                        onChangeText={onChangeText}
-                        onSubmitEditing={handleSubmit}
-                        aria-labelledby='inputLabel'
-                        aria-errormessage='inputError'
-                        textAlign={'center'}
-                    />
-                    {err && <ErrorMessage msg={err}/>}
-                    <View className='h-2'/>
-                    <Button onPress={handleSubmit} disabled={loading}>
-                        <Text>Search</Text>
-                    </Button>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+        <ScrollView contentContainerStyle={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingTop: insets.top,
+                        paddingBottom: insets.bottom,
+                        paddingLeft: insets.left,
+                        paddingRight: insets.right,
+                    }}>
+            <View className='web:max-w-xs w-full p-6'>
+                <Input
+                    placeholder='Enter a login'
+                    value={input}
+                    onChangeText={onChangeText}
+                    onSubmitEditing={handleSubmit}
+                    aria-labelledby='inputLabel'
+                    aria-errormessage='inputError'
+                    textAlign={'center'}
+                    autoCapitalize='none'
+                />
+                {err && <ErrorMessage msg={err}/>}
+                <View className='h-2'/>
+                <Button onPress={handleSubmit} disabled={loading}>
+                    <Text>Search</Text>
+                </Button>
+            </View>
+        </ScrollView>
     );
 }
 
