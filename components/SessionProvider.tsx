@@ -96,7 +96,7 @@ export function SessionProvider({children}: PropsWithChildren) {
                         }
                     }
 
-                    return state.session.accessToken;
+                    return {accessToken: state.session.accessToken};
                 },
                 signOut,
                 session: state.session,

@@ -9,7 +9,7 @@ export interface ApiResult {
 }
 
 export const useApi = () => {
-    const {getValidToken} = useSession();
+    const {getValidToken, signOut} = useSession();
 
     const apiFetch = useCallback(async (path: string, options: RequestInit = {}): Promise<ApiResult> => {
         const authResult = await getValidToken();
@@ -26,6 +26,11 @@ export const useApi = () => {
                     ...(options.headers || {}),
                 },
             });
+
+            if (response.status === 401) {
+                signOut();
+                return {authError: 'Unauthorized'};
+            }
 
             if (response.status === 404) {
                 return {fetchStatus: response.status};
