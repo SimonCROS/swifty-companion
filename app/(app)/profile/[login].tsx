@@ -1,23 +1,52 @@
-import React from 'react';
-import {View, ScrollView, StyleSheet, FlatList} from 'react-native';
-import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
+import React, {useEffect} from 'react';
+import {View, ScrollView, StyleSheet} from 'react-native';
+import {Card, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Progress} from '@/components/ui/progress';
 import {Text} from '@/components/ui/text';
 import {useUser} from "@/hooks/useUser";
-import {useLocalSearchParams} from "expo-router";
+import {router, useLocalSearchParams} from "expo-router";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
+import {useApi} from "@/hooks/useApi";
+import {User} from "@/context/UserContext";
 
 export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
     const {login} = useLocalSearchParams();
-    const {user} = useUser();
+    const {user, setUser} = useUser();
+    const {apiFetch} = useApi();
 
-    if (!user) {
-        return <></>
-    }
+    const displayName = user.displayname ?? user.usual_full_name ?? `${user.first_name ?? ''} ${user.last_name ?? ''}`;
 
-    const displayName = user.usual_full_name ?? `${user.first_name} ${user.last_name}`;
+    useEffect(() => {
+        const fetchUser = async (login: string): Promise<number | null> => {
+            const response = await apiFetch(`/v2/users/${encodeURIComponent(login)}`);
+            if (response != null) {
+                const user = response as User;
+                setUser(user);
+                return user.id;
+            } else {
+                return null;
+            }
+        }
+
+        (async () => {
+            try {
+                let userId: number | null = user.id ?? null;
+                if (!userId && login && typeof login === 'string')
+                    userId = await fetchUser(login);
+
+                if (!userId) {
+                    router.replace('/search');
+                    return;
+                }
+            } catch (error) {
+                console.error(`Failed to fetch user: ${error}`);
+                router.replace('/search');
+                return;
+            }
+        })();
+    }, []);
 
     return (
         <ScrollView contentContainerStyle={{
@@ -38,7 +67,7 @@ export default function ProfileScreen() {
                         </Avatar>
                         <View className={'flex-1'}>
                             <CardTitle>{user.login}</CardTitle>
-                            {displayName ?
+                            {displayName?.trim() ?
                                 <Text>{displayName}</Text>
                                 :
                                 <Text className={'text-destructive'}>name unavailable</Text>

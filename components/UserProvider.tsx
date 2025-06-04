@@ -13,7 +13,7 @@ export function UserProvider({ children }: PropsWithChildren) {
                 unsetUser: () => {
                     setUserState(null)
                 },
-                user,
+                user: user ?? {},
             }}>
             {children}
         </UserContext>

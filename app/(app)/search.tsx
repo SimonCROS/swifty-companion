@@ -23,9 +23,9 @@ export default function SearchScreen() {
 
         setLoading(true);
         try {
-            const response = await apiFetch(`/v2/users?filter[login]=${input}`);
-            if (Array.isArray(response) && response.length > 0) {
-                const user = response[0] as User;
+            const response = await apiFetch(`/v2/users/${encodeURIComponent(input.trim())}`);
+            if (response != null) {
+                const user = response as User;
                 setUser(user);
                 router.push({pathname: '/profile/[login]', params: {login: user.login}});
             } else {
@@ -33,6 +33,7 @@ export default function SearchScreen() {
                 unsetUser();
             }
         } catch (error) {
+            console.dir(error);
             setErr(`Fetch error: ${error}`);
             unsetUser();
         } finally {
@@ -67,6 +68,7 @@ export default function SearchScreen() {
                     aria-errormessage='inputError'
                     textAlign={'center'}
                     autoCapitalize='none'
+                    editable={!loading}
                 />
                 {err && <ErrorMessage msg={err}/>}
                 <View className='h-2'/>
