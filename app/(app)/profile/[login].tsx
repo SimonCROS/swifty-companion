@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {View, ScrollView, StyleSheet} from 'react-native';
+import React, {RefObject, useEffect, useMemo, useState} from 'react';
+import {View, ScrollView, StyleSheet, Platform} from 'react-native';
 import {Card, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Progress} from '@/components/ui/progress';
@@ -9,12 +9,14 @@ import {router, useLocalSearchParams} from "expo-router";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useApi} from "@/hooks/useApi";
 import {User} from "@/context/UserContext";
+import {Picker} from "@react-native-picker/picker";
 
 export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
     const {login} = useLocalSearchParams();
     const {user, setUser} = useUser();
     const {apiFetch} = useApi();
+    const [cursusIndex, setCursusId] = useState<number>(-1);
 
     const displayName = user.displayname ?? user.usual_full_name ?? `${user.first_name ?? ''} ${user.last_name ?? ''}`;
 
@@ -41,6 +43,16 @@ export default function ProfileScreen() {
             }
         })();
     }, []);
+
+    useEffect(() => {// ?? <Picker.Item key={-1}></Picker.Item>
+        if (cursusIndex === -1 && user?.cursus_users) {
+            setCursusId((user.cursus_users?.length ?? 1) - 1);
+        }
+    }, [user, cursusIndex, setCursusId]);
+
+    const cursus = useMemo(() => {
+        return user?.cursus_users?.[cursusIndex ?? 0];
+    }, [cursusIndex, user?.cursus_users]);
 
     return (
         <ScrollView contentContainerStyle={{
@@ -80,8 +92,20 @@ export default function ProfileScreen() {
                     </CardHeader>
                     <CardFooter>
                         <View className={'w-full'}>
-                            <Text className={'mb-3'}>Level {user.cursus_users?.[0]?.level}</Text>
-                            <Progress value={((user.cursus_users?.[0]?.level ?? 0) % 1) * 100}/>
+                            <View className={'flex flex-row items-baseline w-full mb-1'}>
+                                <Text className={'mr-3'}>Level {cursus?.level}</Text>
+                                <Picker
+                                    selectedValue={cursusIndex}
+                                    onValueChange={(itemValue, itemIndex) =>
+                                        setCursusId(parseInt(itemValue as unknown as string))
+                                    }
+                                >
+                                    {user.cursus_users?.map((cu, i) => (
+                                        <Picker.Item key={i} label={cu.cursus?.name || 'Unknown cursus'} value={i}/>
+                                    )) || <Picker.Item key={-1} label={'-'} value={-1}/>}
+                                </Picker>
+                            </View>
+                            <Progress value={((cursus?.level ?? 0) % 1) * 100}/>
                         </View>
                     </CardFooter>
                 </Card>
