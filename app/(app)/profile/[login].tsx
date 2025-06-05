@@ -10,14 +10,15 @@ import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useApi} from "@/hooks/useApi";
 import {User} from "@/context/UserContext";
 import {Picker} from "@react-native-picker/picker";
+import {useColorScheme} from "@/lib/useColorScheme";
 
 export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
     const {login} = useLocalSearchParams();
+    const {isDarkColorScheme} = useColorScheme();
     const {user, setUser} = useUser();
     const {apiFetch} = useApi();
     const [cursusIndex, setCursusIndex] = useState<number>(-1);
-    const [cursusPickerOpen, setCursusPickerOpen] = useState(false);
 
     const displayName = user.displayname ?? user.usual_full_name ?? `${user.first_name ?? ''} ${user.last_name ?? ''}`;
 
@@ -79,6 +80,11 @@ export default function ProfileScreen() {
                                 :
                                 <Text className={'text-destructive'}>name unavailable</Text>
                             }
+                            {(user.location) ?
+                                <Text className={'text-emerald-700'}>{user.location}</Text>
+                                :
+                                <Text className={'text-destructive'}>Offline</Text>
+                            }
                             {(user.email && user.email !== 'hidden') ?
                                 <Text className={'text-muted-foreground'}>{user.email}</Text>
                                 :
@@ -97,6 +103,8 @@ export default function ProfileScreen() {
                                 <Picker
                                     selectedValue={cursusIndex}
                                     className={'web:mb-2'}
+                                    style={{color: isDarkColorScheme ? 'white' : 'black'}}
+                                    dropdownIconColor={isDarkColorScheme ? 'white' : 'black'}
                                     mode={'dropdown'}
                                     onValueChange={(itemValue, itemIndex) =>
                                         setCursusIndex(parseInt(itemValue as unknown as string))
