@@ -1,5 +1,5 @@
-import React, {RefObject, useEffect, useMemo, useState} from 'react';
-import {View, ScrollView, StyleSheet, Platform} from 'react-native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {View, ScrollView, StyleSheet} from 'react-native';
 import {Card, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Progress} from '@/components/ui/progress';
@@ -9,7 +9,7 @@ import {router, useLocalSearchParams} from "expo-router";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useApi} from "@/hooks/useApi";
 import {User} from "@/context/UserContext";
-import DropDownPicker from 'react-native-dropdown-picker';
+import {Picker} from "@react-native-picker/picker";
 
 export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
@@ -45,9 +45,9 @@ export default function ProfileScreen() {
         })();
     }, []);
 
-    useEffect(() => {// ?? <Picker.Item key={-1}></Picker.Item>
+    useEffect(() => {
         if (cursusIndex === -1 && user?.cursus_users) {
-            setCursusIndex((user.cursus_users?.length ?? 1) - 1);
+            setCursusIndex((user.cursus_users?.length ?? 0) - 1);
         }
     }, [user, cursusIndex, setCursusIndex]);
 
@@ -93,19 +93,21 @@ export default function ProfileScreen() {
                     </CardHeader>
                     <CardFooter>
                         <View className={'w-full'}>
-                            <View className={'flex flex-row justify-between items-baseline w-full mb-1'}>
+                            <View className={'w-full mb-1'}>
+                                <Picker
+                                    selectedValue={cursusIndex}
+                                    className={'web:mb-2'}
+                                    mode={'dropdown'}
+                                    onValueChange={(itemValue, itemIndex) =>
+                                        setCursusIndex(parseInt(itemValue as unknown as string))
+                                    }
+                                >
+                                    {
+                                        user.cursus_users?.length ? user.cursus_users?.map((cu, i) => (
+                                            <Picker.Item key={i} label={cu.cursus?.name || 'Unknown cursus'} value={i}/>
+                                        )) : <Picker.Item key={-1} label={'No cursus'} value={-1}/>}
+                                </Picker>
                                 <Text className={'mr-3'}>Level {cursus?.level}</Text>
-                                <DropDownPicker
-                                    style={{width: 'auto'}}
-                                    open={cursusPickerOpen}
-                                    value={cursusIndex}
-                                    items={user.cursus_users?.map((cu, i) => ({
-                                            label: cu?.cursus?.name ?? 'No cursus',
-                                            value: i,
-                                        })) ?? [{label: 'No cursus', value: -1}]}
-                                    setOpen={setCursusPickerOpen}
-                                    setValue={setCursusIndex}
-                                />
                             </View>
                             <Progress value={((cursus?.level ?? 0) % 1) * 100}/>
                         </View>
