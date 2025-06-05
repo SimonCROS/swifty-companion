@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {View, ScrollView, StyleSheet} from 'react-native';
-import {Card, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
+import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Progress} from '@/components/ui/progress';
 import {Text} from '@/components/ui/text';
@@ -55,6 +55,10 @@ export default function ProfileScreen() {
     const cursus = useMemo(() => {
         return user?.cursus_users?.[cursusIndex ?? 0];
     }, [cursusIndex, user?.cursus_users]);
+
+    const displayableUserProjects = useMemo(() => {
+        return user?.projects_users?.filter(pu => pu?.cursus_ids?.includes(cursus?.cursus?.id!) ?? false);
+    }, [user?.projects_users, cursus]);
 
     return (
         <ScrollView contentContainerStyle={{
@@ -124,8 +128,11 @@ export default function ProfileScreen() {
 
                 <Card>
                     <CardHeader style={styles.header}>
-                        <CardTitle style={{marginBottom: 8}}>Recent Activity</CardTitle>
+                        <CardTitle style={{marginBottom: 8}}>Projects</CardTitle>
                     </CardHeader>
+                    <CardContent className={'w-full flex flex-col'}>
+                        {displayableUserProjects?.map((dup, i) => (<Text key={i}>{dup?.project?.name}</Text>))}
+                    </CardContent>
                 </Card>
             </View>
         </ScrollView>
