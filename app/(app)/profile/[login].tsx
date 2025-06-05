@@ -11,6 +11,8 @@ import {useApi} from "@/hooks/useApi";
 import {User} from "@/context/UserContext";
 import {Picker} from "@react-native-picker/picker";
 import {useColorScheme} from "@/lib/useColorScheme";
+import {Collapsible} from "@/components/ui/collapsible";
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 
 export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
@@ -56,13 +58,57 @@ export default function ProfileScreen() {
         return user?.cursus_users?.[cursusIndex ?? 0];
     }, [cursusIndex, user?.cursus_users]);
 
+    const structuredProjects = useMemo(() => {
+        let projects: {
+            [key: number]: {
+                id?: number;
+                name?: string,
+                cursus_ids?: number[],
+                updated_at: Date,
+                validated: boolean,
+                parentId?: number,
+                marked: boolean,
+                final_mark?: number,
+                children?: number[],
+            }
+        } = {};
+        for (const pu of user?.projects_users ?? []) {
+            if (pu?.project?.id !== undefined) {
+                projects[pu.project.id] = {
+                    id: pu.project.id,
+                    name: pu.project.name,
+                    cursus_ids: pu.cursus_ids,
+                    updated_at: new Date(pu.updated_at ?? 0),
+                    validated: pu["validated?"] ?? false,
+                    parentId: pu.project?.parent_id,
+                    marked: pu.marked ?? false,
+                    final_mark: pu.final_mark ?? undefined,
+                    children: []
+                };
+                if (pu.project.parent_id !== undefined && pu.project.parent_id !== null) {
+                    projects[pu.project.parent_id] = {
+                        ...projects[pu.project.parent_id],
+                        children: [...(projects[pu.project.parent_id]?.children ?? []), pu.project.id]
+                    }
+                }
+            }
+        }
+        return projects;
+    }, [user?.projects_users]);
+
     const displayableUserProjects = useMemo(() => {
-        return user?.projects_users?.filter(pu => pu?.cursus_ids?.includes(cursus?.cursus?.id!) ?? false);
-    }, [user?.projects_users, cursus]);
+        return Object.values(structuredProjects ?? {}).filter(pu => pu?.cursus_ids?.includes(cursus?.cursus?.id!) ?? false).sort((a, b) => {
+            if (!a.marked && b.marked)
+                return -1;
+            else if (a.marked && !b.marked)
+                return 1;
+            // @ts-ignore
+            return b.updated_at - a.updated_at;
+        });
+    }, [structuredProjects, cursus]);
 
     return (
         <ScrollView contentContainerStyle={{
-            flex: 1,
             paddingTop: insets.top,
             paddingBottom: insets.bottom,
             paddingLeft: insets.left,
@@ -131,7 +177,40 @@ export default function ProfileScreen() {
                         <CardTitle style={{marginBottom: 8}}>Projects</CardTitle>
                     </CardHeader>
                     <CardContent className={'w-full flex flex-col'}>
-                        {displayableUserProjects?.map((dup, i) => (<Text key={i}>{dup?.project?.name}</Text>))}
+                        {displayableUserProjects?.map((dup, i) => {
+                            if (dup?.parentId)
+                                return;
+                            return (<Accordion key={i} type={"single"} collapsible>
+                                <AccordionItem value='item-1'>
+                                    <AccordionTrigger style={{padding: 0}} disabled={!dup?.children?.length}>
+                                        <View className={'w-full d-flex flex-row justify-between'}>
+                                            <Text>{dup?.name}</Text>
+                                            {dup?.final_mark == null ? (<></>) :
+                                                (<Text
+                                                    className={'font-bold ' + (dup?.validated ? 'text-emerald-700' : 'text-destructive')}>
+                                                    {dup.final_mark}
+                                                </Text>)}
+                                        </View>
+                                    </AccordionTrigger>
+                                    {
+                                        dup?.children?.length ? <AccordionContent>
+                                            {dup?.children?.map((child, j) => {
+                                                const sub = structuredProjects?.[child];
+                                                return (
+                                                    <View key={j} className={'w-full d-flex flex-row justify-between'}>
+                                                        <Text>{sub?.name}</Text>
+                                                        {sub?.final_mark == null ? (<></>) :
+                                                            (<Text
+                                                                className={'font-bold ' + (sub?.validated ? 'text-emerald-700' : 'text-destructive')}>
+                                                                {sub.final_mark}
+                                                            </Text>)}
+                                                    </View>);
+                                            })}
+                                        </AccordionContent> : <></>
+                                    }
+                                </AccordionItem>
+                            </Accordion>);
+                        })}
                     </CardContent>
                 </Card>
             </View>
