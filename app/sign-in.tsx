@@ -26,15 +26,24 @@ export default function SignIn() {
         authDiscovery
     );
 
+    const [tokenErr, setTokenErr] = React.useState<string | null>(null);
+
     useEffect(() => {
         if (isSigningIn)
             return;
 
+        setTokenErr(null);
         if (response?.type === 'success') {
             setIsSigningIn(true);
-            signIn(response.params.code).finally(() => setIsSigningIn(false));
+            (async () => {
+                const authResult = await signIn(response.params.code).finally(() => setIsSigningIn(false));
+                if (authResult.fetchError)
+                    setTokenErr(authResult.fetchError);
+                else if (authResult.authError)
+                    setTokenErr(authResult.authError);
+            })();
         }
-    }, [signIn, response, isSigningIn]);
+    }, [signIn, response, isSigningIn, setTokenErr]);
 
     return (
         <ScrollView contentContainerStyle={{
@@ -50,6 +59,8 @@ export default function SignIn() {
                 <Button onPress={() => promptAsync()} disabled={!request && !isSigningIn}>
                     <Text>Sign In</Text>
                 </Button>
+                {response?.type === 'error' && (<Text className={'text-destructive w-full text-center mt-4'}>{response?.error?.description}</Text>)}
+                {tokenErr && (<Text className={'text-destructive w-full text-center mt-4'}>{tokenErr}</Text>)}
             </View>
         </ScrollView>
     );
