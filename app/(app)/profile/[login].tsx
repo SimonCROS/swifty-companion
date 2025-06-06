@@ -204,7 +204,7 @@ export default function ProfileScreen() {
                                 <CardContent className={'w-full flex flex-col'}>
                                     {cursus?.skills?.map((skill, i) => (
                                         <View key={i} className={'w-full mb-4'}>
-                                            <Text><Text className={'font-bold'}>{skill.name}</Text> - {((skill?.level || 0) * 5).toFixed(1)}%</Text>
+                                            <Text><Text className={'font-bold'}>{skill?.name ?? 'Unknown'}</Text> - {((skill?.level || 0) * 5).toFixed(1)}%</Text>
                                             <Progress value={(skill?.level || 0) * 5}/>
                                         </View>
                                     ))}
