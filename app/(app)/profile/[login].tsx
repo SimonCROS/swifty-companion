@@ -185,17 +185,25 @@ export default function ProfileScreen() {
                 </Card>
 
                 <Card>
-                    <CardHeader style={styles.header}>
-                        <CardTitle style={{marginBottom: 8}}>Skills</CardTitle>
-                    </CardHeader>
-                    <CardContent className={'w-full flex flex-col'}>
-                        {cursus?.skills?.map((skill, i) => (
-                            <View key={i} className={'w-full mb-4'}>
-                                <Text>{skill.name} {skill.level}</Text>
-                                <Progress value={(skill?.level ?? 0) * 5}/>
-                            </View>
-                        ))}
-                    </CardContent>
+                    <Accordion type={"single"} collapsible>
+                        <AccordionItem value='skills'>
+                            <AccordionTrigger className={'p-0 pr-6'} asChild={true}>
+                                <CardHeader style={styles.header}>
+                                    <CardTitle style={{marginBottom: 8}}>Skills</CardTitle>
+                                </CardHeader>
+                            </AccordionTrigger>
+                            <AccordionContent asChild={true}>
+                                <CardContent className={'w-full flex flex-col'}>
+                                    {cursus?.skills?.map((skill, i) => (
+                                        <View key={i} className={'w-full mb-4'}>
+                                            <Text>{skill.name} {skill.level}</Text>
+                                            <Progress value={(skill?.level ?? 0) * 5}/>
+                                        </View>
+                                    ))}
+                                </CardContent>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
                 </Card>
 
                 <Card>
@@ -208,7 +216,7 @@ export default function ProfileScreen() {
                                 return;
                             return (<Accordion key={i} type={"single"} collapsible>
                                 <AccordionItem value='item-1'>
-                                    <AccordionTrigger style={{padding: 0}} disabled={!dup?.children?.length}>
+                                    <AccordionTrigger className={'p-0'} disabled={!dup?.children?.length}>
                                         {projectLine(dup)}
                                     </AccordionTrigger>
                                     {
