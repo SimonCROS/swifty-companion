@@ -186,6 +186,20 @@ export default function ProfileScreen() {
 
                 <Card>
                     <CardHeader style={styles.header}>
+                        <CardTitle style={{marginBottom: 8}}>Skills</CardTitle>
+                    </CardHeader>
+                    <CardContent className={'w-full flex flex-col'}>
+                        {cursus?.skills?.map((skill, i) => (
+                            <View key={i} className={'w-full mb-4'}>
+                                <Text>{skill.name} {skill.level}</Text>
+                                <Progress value={(skill?.level ?? 0) * 5}/>
+                            </View>
+                        ))}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader style={styles.header}>
                         <CardTitle style={{marginBottom: 8}}>Projects</CardTitle>
                     </CardHeader>
                     <CardContent className={'w-full flex flex-col'}>
