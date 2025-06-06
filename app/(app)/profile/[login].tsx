@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {View, ScrollView, StyleSheet} from 'react-native';
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
@@ -13,6 +13,18 @@ import {Picker} from "@react-native-picker/picker";
 import {useColorScheme} from "@/lib/useColorScheme";
 import {Collapsible} from "@/components/ui/collapsible";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
+
+interface ProjectLineData {
+    id?: number;
+    name?: string,
+    cursus_ids?: number[],
+    updated_at: Date,
+    validated: boolean,
+    parentId?: number,
+    marked: boolean,
+    final_mark?: number,
+    children?: number[],
+}
 
 export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
@@ -54,23 +66,23 @@ export default function ProfileScreen() {
         }
     }, [user, cursusIndex, setCursusIndex]);
 
+    const projectLine = useCallback((data: ProjectLineData | undefined, key: number = 0) => (
+        <View key={key} className={'w-full d-flex flex-row justify-between items-center'}>
+            <Text className={'flex-1'}>{data?.name}</Text>
+            {data?.final_mark == null ? (<></>) :
+                (<Text
+                    className={'font-bold ' + (data?.validated ? 'text-emerald-700' : 'text-destructive')}>
+                    {data.final_mark}
+                </Text>)}
+        </View>), [])
+
     const cursus = useMemo(() => {
         return user?.cursus_users?.[cursusIndex ?? 0];
     }, [cursusIndex, user?.cursus_users]);
 
     const structuredProjects = useMemo(() => {
         let projects: {
-            [key: number]: {
-                id?: number;
-                name?: string,
-                cursus_ids?: number[],
-                updated_at: Date,
-                validated: boolean,
-                parentId?: number,
-                marked: boolean,
-                final_mark?: number,
-                children?: number[],
-            }
+            [key: number]: ProjectLineData
         } = {};
         for (const pu of user?.projects_users ?? []) {
             if (pu?.project?.id !== undefined) {
@@ -183,29 +195,11 @@ export default function ProfileScreen() {
                             return (<Accordion key={i} type={"single"} collapsible>
                                 <AccordionItem value='item-1'>
                                     <AccordionTrigger style={{padding: 0}} disabled={!dup?.children?.length}>
-                                        <View className={'w-full d-flex flex-row justify-between'}>
-                                            <Text>{dup?.name}</Text>
-                                            {dup?.final_mark == null ? (<></>) :
-                                                (<Text
-                                                    className={'font-bold ' + (dup?.validated ? 'text-emerald-700' : 'text-destructive')}>
-                                                    {dup.final_mark}
-                                                </Text>)}
-                                        </View>
+                                        {projectLine(dup)}
                                     </AccordionTrigger>
                                     {
                                         dup?.children?.length ? <AccordionContent>
-                                            {dup?.children?.map((child, j) => {
-                                                const sub = structuredProjects?.[child];
-                                                return (
-                                                    <View key={j} className={'w-full d-flex flex-row justify-between'}>
-                                                        <Text>{sub?.name}</Text>
-                                                        {sub?.final_mark == null ? (<></>) :
-                                                            (<Text
-                                                                className={'font-bold ' + (sub?.validated ? 'text-emerald-700' : 'text-destructive')}>
-                                                                {sub.final_mark}
-                                                            </Text>)}
-                                                    </View>);
-                                            })}
+                                            {dup?.children?.map((child, j) => projectLine(structuredProjects?.[child], j))}
                                         </AccordionContent> : <></>
                                     }
                                 </AccordionItem>
