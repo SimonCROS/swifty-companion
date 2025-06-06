@@ -67,6 +67,7 @@ export default function SearchScreen() {
         }}>
             <View className='relative web:max-w-xs w-full h-full p-6 flex flex-col items-stretch justify-center'>
                 <Input
+                    className={'bg-input'}
                     placeholder='Enter a login'
                     value={input}
                     onChangeText={onChangeText}
