@@ -11,8 +11,8 @@ import {useApi} from "@/hooks/useApi";
 import {User} from "@/context/UserContext";
 import {Picker} from "@react-native-picker/picker";
 import {useColorScheme} from "@/lib/useColorScheme";
-import {Collapsible} from "@/components/ui/collapsible";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
+import {Button} from "@/components/ui/button";
 
 interface ProjectLineData {
     id?: number;
@@ -118,6 +118,14 @@ export default function ProfileScreen() {
             return b.updated_at - a.updated_at;
         });
     }, [structuredProjects, cursus]);
+
+    const backToSearch = useCallback(() => {
+        if (router.canGoBack()) {
+            router.back();
+        } else {
+            router.push('/search');
+        }
+    }, [])
 
     return (
         <ScrollView contentContainerStyle={{
@@ -229,6 +237,10 @@ export default function ProfileScreen() {
                         })}
                     </CardContent>
                 </Card>
+
+                <Button onPress={backToSearch} variant={'destructive'}>
+                    <Text>Back to search</Text>
+                </Button>
             </View>
         </ScrollView>
     );
