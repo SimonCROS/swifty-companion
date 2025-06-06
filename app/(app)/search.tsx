@@ -9,6 +9,8 @@ import {useUser} from "@/hooks/useUser";
 import {User} from "@/context/UserContext";
 import {router} from "expo-router";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
+import {useCallback} from "react";
+import {useSession} from "@/hooks/useSession";
 
 export default function SearchScreen() {
     const insets = useSafeAreaInsets();
@@ -16,6 +18,7 @@ export default function SearchScreen() {
     const [input, setInput] = React.useState<string>('');
     const [loading, setLoading] = React.useState<boolean>(false);
     const [err, setErr] = React.useState<string | null>(null);
+    const {signOut} = useSession();
     const {setUser, unsetUser} = useUser();
 
     const handleSubmit = async () => {
@@ -45,6 +48,13 @@ export default function SearchScreen() {
         setInput(text);
     }
 
+    const handleSignOut = useCallback(() => {
+        signOut();
+        if (router.canDismiss())
+            router.dismissAll();
+        router.replace('/sign-in');
+    }, [signOut])
+
     return (
         <ScrollView contentContainerStyle={{
             flex: 1,
@@ -55,7 +65,7 @@ export default function SearchScreen() {
             paddingLeft: insets.left,
             paddingRight: insets.right,
         }}>
-            <View className='web:max-w-xs w-full p-6'>
+            <View className='relative web:max-w-xs w-full h-full p-6 flex flex-col items-stretch justify-center'>
                 <Input
                     placeholder='Enter a login'
                     value={input}
@@ -71,6 +81,9 @@ export default function SearchScreen() {
                 <View className='h-2'/>
                 <Button onPress={handleSubmit} disabled={loading}>
                     <Text>Search</Text>
+                </Button>
+                <Button className={'absolute top-4 right-4'} onPress={handleSignOut} variant={'destructive'}>
+                    <Text>Sign Out</Text>
                 </Button>
             </View>
         </ScrollView>

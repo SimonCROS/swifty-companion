@@ -119,7 +119,7 @@ export default function ProfileScreen() {
         });
     }, [structuredProjects, cursus]);
 
-    const backToSearch = useCallback(() => {
+    const handleBackToSearch = useCallback(() => {
         if (router.canGoBack()) {
             router.back();
         } else {
@@ -238,7 +238,7 @@ export default function ProfileScreen() {
                     </CardContent>
                 </Card>
 
-                <Button onPress={backToSearch} variant={'destructive'}>
+                <Button onPress={handleBackToSearch} variant={'destructive'}>
                     <Text>Back to search</Text>
                 </Button>
             </View>
